@@ -5,7 +5,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Table(name = "pet")
@@ -25,6 +24,5 @@ public class PetData {
     LocalDate birthDate;
 
     String notes;
-
 
 }

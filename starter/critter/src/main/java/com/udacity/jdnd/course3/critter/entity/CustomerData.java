@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
+import java.util.List;
 
 @Data // https://projectlombok.org/features/Data
 @Table(name = "customer")
@@ -18,4 +19,6 @@ public class CustomerData {
     String name;
     String phoneNumber;
     String notes;
+
+
 }

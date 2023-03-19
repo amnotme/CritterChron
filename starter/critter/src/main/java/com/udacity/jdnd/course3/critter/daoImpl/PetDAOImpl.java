@@ -44,12 +44,17 @@ public class PetDAOImpl implements PetDAO {
             ", :" + PET_NOTES +
             ")";
 
-    private static final String SELECT_ALL_PETS =
-        "SELECT * FROM pet ";
+    private static final String SELECT_ALL_PETS_BY_OWNER_ID =
+        "SELECT * FROM pet " +
+            "WHERE owner_id = :" + OWNER_ID;
 
     private static final String SELECT_PET_BY_ID =
         "SELECT * FROM pet " +
             "WHERE id = :id";
+
+    private static final String SELECT_ALL_PETS =
+        "SELECT * FROM pet ";
+
 
     private static final RowMapper<PetData> petDataMapper =
         new BeanPropertyRowMapper<>(PetData.class);
@@ -60,7 +65,7 @@ public class PetDAOImpl implements PetDAO {
         jdbcTemplate.update(
             INSERT_PET,
             new MapSqlParameterSource()
-                    .addValue(PET_TYPE, petData.getType())
+                    .addValue(PET_TYPE, String.valueOf(petData.getType()))
                     .addValue(PET_NAME, petData.getName())
                     .addValue(OWNER_ID, petData.getOwnerId())
                     .addValue(PET_BIRTH_DATE, petData.getBirthDate())
@@ -80,6 +85,15 @@ public class PetDAOImpl implements PetDAO {
         return jdbcTemplate.queryForObject(
             SELECT_PET_BY_ID,
             new MapSqlParameterSource().addValue("id", petId),
+            new BeanPropertyRowMapper<>(PetData.class)
+        );
+    }
+
+    @Override
+    public List<PetData> getPetsByOwnerID(Long ownerId) {
+        return jdbcTemplate.query(
+            SELECT_ALL_PETS_BY_OWNER_ID,
+            new MapSqlParameterSource().addValue("owner_id", ownerId),
             new BeanPropertyRowMapper<>(PetData.class)
         );
     }

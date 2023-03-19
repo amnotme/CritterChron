@@ -38,8 +38,12 @@ public class CustomerDAOImpl implements CustomerDAO {
                 ")";
 
     private static final String SELECT_ALL_CUSTOMERS =
-        "SELECT * FROM customer";
-
+        "SELECT " +
+            "id, " +
+            "name, " +
+            "phone_number, " +
+            "notes " +
+        "FROM customer";
 
     private static final String SELECT_CUSTOMER_BY_ID =
         "SELECT * FROM customer " +

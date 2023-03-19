@@ -35,4 +35,17 @@ public class PetService {
         }
         return pets;
     }
+
+    public List<PetDTO> getPetsByOwner(Long ownerId) {
+        List<PetDTO> pets = new ArrayList<>();
+
+        for (PetData petData : petDAO.getPetsByOwnerID(ownerId)) {
+            pets.add(objectMapper.convertValue(petData, PetDTO.class));
+        }
+        return pets;
+    }
+
+    public PetDTO getPetById(Long petId) {
+        return objectMapper.convertValue(petDAO.getPetById(petId), PetDTO.class);
+    }
 }

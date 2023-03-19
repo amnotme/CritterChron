@@ -12,4 +12,6 @@ public interface PetDAO {
 
     PetData getPetById(Long petId);
 
+    List<PetData> getPetsByOwnerID(Long ownerId);
+
 }
