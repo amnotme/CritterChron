@@ -20,5 +20,4 @@ public class CustomerData {
     String phoneNumber;
     String notes;
 
-
 }
