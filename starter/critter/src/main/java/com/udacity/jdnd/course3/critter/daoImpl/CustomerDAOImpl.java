@@ -16,10 +16,16 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * The type Customer dao.
+ */
 @Repository
 @Transactional
 public class CustomerDAOImpl implements CustomerDAO {
 
+    /**
+     * The Jdbc template.
+     */
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -31,11 +37,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     private static final String INSERT_CUSTOMER =
         "INSERT INTO customer (name, phone_number, notes) " +
-                "VALUES " +
-                "(:" + CUSTOMER_NAME +
-                ", :" + CUSTOMER_PHONE +
-                ", :" + CUSTOMER_NOTES +
-                ")";
+            "VALUES (:" + CUSTOMER_NAME + ", :" + CUSTOMER_PHONE + ", :" + CUSTOMER_NOTES + ")";
 
     private static final String SELECT_ALL_CUSTOMERS =
         "SELECT " +
@@ -48,8 +50,10 @@ public class CustomerDAOImpl implements CustomerDAO {
     private static final String SELECT_CUSTOMER_BY_ID =
         "SELECT * FROM customer " +
             "WHERE id = :id";
+
     private static final RowMapper<CustomerData> customerDataMapper =
         new BeanPropertyRowMapper<>(CustomerData.class);
+
     @Override
     public Long saveCustomer(CustomerData customerData) {
         KeyHolder key = new GeneratedKeyHolder();
@@ -59,14 +63,13 @@ public class CustomerDAOImpl implements CustomerDAO {
                 .addValue(CUSTOMER_NAME, customerData.getName())
                 .addValue(CUSTOMER_PHONE, customerData.getPhoneNumber())
                 .addValue(CUSTOMER_NOTES, customerData.getNotes()),
-                key
+            key
         );
         return Objects.requireNonNull(key.getKey()).longValue();
     }
 
     @Override
     public List<CustomerData> getAllCustomers() {
-
         return jdbcTemplate.query(SELECT_ALL_CUSTOMERS, customerDataMapper);
     }
 

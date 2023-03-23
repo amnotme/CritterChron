@@ -8,6 +8,9 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 
 
+/**
+ * The type Schedule data.
+ */
 @Data
 @Table(name = "schedule")
 public class ScheduleData {

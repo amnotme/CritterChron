@@ -6,6 +6,9 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.DayOfWeek;
 
+/**
+ * The type Day of week data.
+ */
 @Data
 @Table(name = "day_of_week")
 public class DayOfWeekData {

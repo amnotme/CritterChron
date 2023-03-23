@@ -4,6 +4,9 @@ import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 
+/**
+ * The type Employee data.
+ */
 @Data
 @Table(name = "employee")
 public class EmployeeData {
@@ -13,5 +16,4 @@ public class EmployeeData {
 
     @Nationalized
     private String name;
-
 }

@@ -7,6 +7,9 @@ import org.springframework.data.annotation.Id;
 
 import javax.persistence.Table;
 
+/**
+ * The type Join schedule data.
+ */
 @Data
 @Table(name = "join_schedule")
 public class JoinScheduleData {

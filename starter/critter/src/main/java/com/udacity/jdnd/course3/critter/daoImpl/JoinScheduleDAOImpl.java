@@ -13,10 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * The type Join schedule dao.
+ */
 @Repository
 @Transactional
 public class JoinScheduleDAOImpl implements JoinScheduleDAO {
 
+    /**
+     * The Jdbc template.
+     */
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -28,11 +34,12 @@ public class JoinScheduleDAOImpl implements JoinScheduleDAO {
 
     private static final String PET_ID = "pet_id";
 
-    private static final String SELECT_ALL_SCHEDULES =
-        "SELECT * FROM join_schedule ";
-
     private static final String SELECT_ALL_SCHEDULES_BY_SCHEDULE_ID =
         "SELECT * FROM join_schedule WHERE " + SCHEDULE_ID + " = :" + SCHEDULE_ID;
+    private static final String SELECT_ALL_SCHEDULES_BY_EMPLOYEE_ID =
+        "SELECT * FROM join_schedule WHERE " + EMPLOYEE_ID + " = :" + EMPLOYEE_ID;
+    private static final String SELECT_ALL_SCHEDULES_BY_PET_ID =
+        "SELECT * FROM join_schedule WHERE " + PET_ID + " = :" + PET_ID;
 
     private static final String INSERT_SCHEDULE_AND_EMPLOYEE =
         "INSERT INTO join_schedule (" + SCHEDULE_ID + ", " + EMPLOYEE_ID + ") " +
@@ -83,7 +90,25 @@ public class JoinScheduleDAOImpl implements JoinScheduleDAO {
     public List<JoinScheduleData> getScheduleByScheduleId(Long scheduleId) {
         return jdbcTemplate.query(
             SELECT_ALL_SCHEDULES_BY_SCHEDULE_ID,
-                new MapSqlParameterSource().addValue("schedule_id", scheduleId),
+                new MapSqlParameterSource().addValue(SCHEDULE_ID, scheduleId),
+                joinScheduleDataMapper
+        );
+    }
+
+    @Override
+    public List<JoinScheduleData> getSchedulesByEmployeeId(Long employeeId) {
+        return jdbcTemplate.query(
+                SELECT_ALL_SCHEDULES_BY_EMPLOYEE_ID,
+                new MapSqlParameterSource().addValue(EMPLOYEE_ID, employeeId),
+                joinScheduleDataMapper
+        );
+    }
+
+    @Override
+    public List<JoinScheduleData> getSchedulesByPetId(Long petId) {
+        return jdbcTemplate.query(
+                SELECT_ALL_SCHEDULES_BY_PET_ID,
+                new MapSqlParameterSource().addValue(PET_ID, petId),
                 joinScheduleDataMapper
         );
     }

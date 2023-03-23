@@ -8,44 +8,69 @@ import com.udacity.jdnd.course3.critter.entity.PetData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * The type Pet service.
+ */
 @Service
 public class PetService {
 
+    /**
+     * The Pet dao.
+     */
     @Autowired
     PetDAO petDAO = new PetDAOImpl();
 
+    /**
+     * The Object mapper.
+     */
     @Autowired
     ObjectMapper objectMapper;
 
 
-    public PetDTO addPet(PetDTO petDTO) {
-        Long petId = petDAO.savePet(objectMapper.convertValue(petDTO, PetData.class));
-        return objectMapper.convertValue(petDAO.getPetById(petId), PetDTO.class);
-    }
-
-
-    public List<PetDTO> getAllPets() {
-        List<PetDTO> pets = new ArrayList<>();
-
-        for (PetData petData : petDAO.getAllPets()) {
-            pets.add(objectMapper.convertValue(petData, PetDTO.class));
+    /**
+     * Add pet pet dto.
+     *
+     * @param petDTO the pet dto
+     * @return the pet dto
+     */
+    public PetData addPet(PetDTO petDTO) {
+        try {
+            Long petId = petDAO.savePet(objectMapper.convertValue(petDTO, PetData.class));
+            return petDAO.getPetById(petId);
+        } catch (Exception exception) {
+            return null;
         }
-        return pets;
     }
 
-    public List<PetDTO> getPetsByOwner(Long ownerId) {
-        List<PetDTO> pets = new ArrayList<>();
 
-        for (PetData petData : petDAO.getPetsByOwnerID(ownerId)) {
-            pets.add(objectMapper.convertValue(petData, PetDTO.class));
+    /**
+     * Gets pets by owner.
+     *
+     * @param ownerId the owner id
+     * @return the pets by owner
+     */
+    public List<PetData> getPetsByOwner(Long ownerId) {
+        try {
+            return petDAO.getPetsByOwnerID(ownerId);
+        } catch (Exception exception) {
+            return null;
         }
-        return pets;
     }
 
-    public PetDTO getPetById(Long petId) {
-        return objectMapper.convertValue(petDAO.getPetById(petId), PetDTO.class);
+    /**
+     * Gets pet by id.
+     *
+     * @param petId the pet id
+     * @return the pet by id
+     */
+    public PetData getPetById(Long petId) {
+        try {
+            return petDAO.getPetById(petId);
+        } catch (Exception exception) {
+            return null;
+        }
     }
 }

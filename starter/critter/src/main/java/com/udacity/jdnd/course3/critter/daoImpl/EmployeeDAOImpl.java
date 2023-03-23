@@ -15,10 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Employee dao.
+ */
 @Repository
 @Transactional
 public class EmployeeDAOImpl implements EmployeeDAO {
 
+    /**
+     * The Jdbc template.
+     */
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -44,7 +50,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
             INSERT_EMPLOYEE,
             new MapSqlParameterSource()
                 .addValue(EMPLOYEE_NAME, employeeData.getName()),
-                key
+            key
         );
         return Objects.requireNonNull(key.getKey()).longValue();
     }

@@ -20,10 +20,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
+/**
+ * The type Skill dao.
+ */
 @Repository
 @Transactional
 public class SkillDAOImpl implements SkillDAO {
 
+    /**
+     * The Jdbc template.
+     */
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -74,7 +80,7 @@ public class SkillDAOImpl implements SkillDAO {
         return
             new HashSet<>(jdbcTemplate.query(
                 SELECT_SKILLS_BY_EMPLOYEE_ID,
-                new MapSqlParameterSource().addValue("employee_id", employeeId),
+                new MapSqlParameterSource().addValue(SKILL_EMPLOYEE_ID, employeeId),
                 skillMapper
             )
         );

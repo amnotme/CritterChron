@@ -6,6 +6,9 @@ import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
 
+/**
+ * The type Skills data.
+ */
 @Data
 @Table(name = "skill")
 public class SkillsData {

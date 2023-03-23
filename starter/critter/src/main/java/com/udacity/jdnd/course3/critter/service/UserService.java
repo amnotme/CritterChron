@@ -5,161 +5,274 @@ import com.udacity.jdnd.course3.critter.dao.*;
 import com.udacity.jdnd.course3.critter.daoImpl.*;
 import com.udacity.jdnd.course3.critter.dto.CustomerDTO;
 import com.udacity.jdnd.course3.critter.dto.EmployeeDTO;
-import com.udacity.jdnd.course3.critter.dto.EmployeeRequestDTO;
 import com.udacity.jdnd.course3.critter.dto.EmployeeSkill;
 import com.udacity.jdnd.course3.critter.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * The type User service.
+ */
 @Service
 public class UserService {
 
+    /**
+     * The Customer dao.
+     */
     @Autowired
     CustomerDAO customerDAO = new CustomerDAOImpl();
 
+    /**
+     * The Pet dao.
+     */
     @Autowired
     PetDAO petDAO = new PetDAOImpl();
 
+    /**
+     * The Employee dao.
+     */
     @Autowired
     EmployeeDAO employeeDAO = new EmployeeDAOImpl();
 
+    /**
+     * The Skill dao.
+     */
     @Autowired
     SkillDAO skillDAO = new SkillDAOImpl();
 
+    /**
+     * The Day of week dao.
+     */
     @Autowired
     DayOfWeekDAO dayOfWeekDAO = new DayOfWeekDAOImpl();
 
+    /**
+     * The Object mapper.
+     */
     @Autowired
     ObjectMapper objectMapper;
 
-    public CustomerDTO addCustomer(CustomerDTO customerDTO) {
-
-        Long customerId =  customerDAO.saveCustomer(objectMapper.convertValue(customerDTO, CustomerData.class));
-        return objectMapper.convertValue(customerDAO.getCustomer(customerId), CustomerDTO.class);
-    }
-
-    public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
-        Long employeeId = employeeDAO.saveEmployee(objectMapper.convertValue(employeeDTO, EmployeeData.class));
-        List<Long> skillIds = new ArrayList<>();
-        List<Long> daysIds = new ArrayList<>();
-
-        EmployeeDTO employee = objectMapper.convertValue(employeeDAO.getEmployeeById(employeeId), EmployeeDTO.class);
-        if (employeeDTO.getSkills() != null) {
-            for (EmployeeSkill skill : employeeDTO.getSkills()) {
-                SkillsData skillData = new SkillsData();
-                skillData.setSkillName(skill);
-                skillData.setEmployeeId(employeeId);
-                skillIds.add(skillDAO.saveSkill(skillData));
-            }
-            Set<EmployeeSkill> employeeSkills = new HashSet<>();
-            for (SkillsData skill: skillDAO.getSkillsByIdList(skillIds))
-                employeeSkills.add(skill.getSkillName());
-
-            employee.setSkills(employeeSkills);
+    /**
+     * Add customer customer dto.
+     *
+     * @param customerDTO the customer dto
+     * @return the customer dto
+     */
+    public CustomerData addCustomer(CustomerDTO customerDTO) {
+        try {
+            Long customerId =  customerDAO.saveCustomer(objectMapper.convertValue(customerDTO, CustomerData.class));
+            return customerDAO.getCustomer(customerId);
+        } catch (Exception exception) {
+            return null;
         }
+    }
 
-        if (employeeDTO.getDaysAvailable() != null) {
-            for (DayOfWeek day: employeeDTO.getDaysAvailable()) {
-                DayOfWeekData dayOfWeekData = new DayOfWeekData();
-                dayOfWeekData.setDayName(day);
-                dayOfWeekData.setEmployeeId(employeeId);
-                daysIds.add(dayOfWeekDAO.saveDay(dayOfWeekData));
-            }
-            Set<DayOfWeek> daysOfWeeks = new HashSet<>();
-            for (DayOfWeekData dayOfWeekData: dayOfWeekDAO.getDaysByDaysId(daysIds))
-                daysOfWeeks.add(dayOfWeekData.getDayName());
-
-            employee.setDaysAvailable(daysOfWeeks);
+    /**
+     * Add employee employee dto.
+     *
+     * @param employeeDTO the employee dto
+     * @return the employee dto
+     */
+    public Long addEmployee(EmployeeDTO employeeDTO) {
+        try {
+            return employeeDAO.saveEmployee(objectMapper.convertValue(employeeDTO, EmployeeData.class));
+        } catch (Exception exception) {
+            return null;
         }
-        return employee;
     }
 
-    public EmployeeDTO getEmployeeById(Long employeeId) {
-        Set<EmployeeSkill> employeeSkills = new HashSet<>();
-        Set<DayOfWeek> employeeDaysAvailable = new HashSet<>();
-
-        EmployeeDTO employeeDTO = objectMapper.convertValue(employeeDAO.getEmployeeById(employeeId), EmployeeDTO.class);
-        for (SkillsData skillsData: skillDAO.getSkillsByEmployeeId(employeeId))
-            employeeSkills.add(skillsData.getSkillName());
-
-        for (DayOfWeekData dayOfWeekData: dayOfWeekDAO.getDaysByEmployeeId(employeeId))
-            employeeDaysAvailable.add(dayOfWeekData.getDayName());
-
-        employeeDTO.setSkills(employeeSkills);
-        employeeDTO.setDaysAvailable(employeeDaysAvailable);
-        return employeeDTO;
+    /**
+     * Gets all customers.
+     *
+     * @return the all customers
+     */
+    public List<CustomerData> getAllCustomers() {
+        try {
+            return customerDAO.getAllCustomers();
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
+    /**
+     * Gets owner by pet.
+     *
+     * @param petId the pet id
+     * @return the owner by pet
+     */
+    public CustomerData getOwnerByPet(Long petId) {
+        try {
+            return customerDAO.getCustomer(petDAO.getPetById(petId).getOwnerId());
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+
+    /**
+     * Sets employee availability.
+     *
+     * @param availableDays the available days
+     * @param employeeId    the employee id
+     */
     public void setEmployeeAvailability(Set<DayOfWeek> availableDays, Long employeeId) {
 
-        EmployeeDTO employee = objectMapper.convertValue(employeeDAO.getEmployeeById(employeeId), EmployeeDTO.class);
+        EmployeeData employee = employeeDAO.getEmployeeById(employeeId);
 
         if (employee == null) return;
         if (availableDays == null) return;
 
-        dayOfWeekDAO.deleteDaysOfWeekByEmployeeId(employeeId);
+        try {
+            dayOfWeekDAO.deleteDaysOfWeekByEmployeeId(employeeId);
 
-        for (DayOfWeek day: availableDays) {
-            DayOfWeekData dayOfWeekData = new DayOfWeekData();
-            dayOfWeekData.setDayName(day);
-            dayOfWeekData.setEmployeeId(employeeId);
-            dayOfWeekDAO.saveDay(dayOfWeekData);
-        }
-    }
-    public List<CustomerDTO> getAllCustomers() {
-        List<CustomerDTO> customers = new ArrayList<>();
-        List<Long> petIds = new ArrayList<>();
-
-        for (CustomerData customerData : customerDAO.getAllCustomers()) {
-            List<PetData> pets = petDAO.getPetsByOwnerID(customerData.getId());
-            CustomerDTO customer = objectMapper.convertValue(customerData, CustomerDTO.class);
-            if (pets != null) {
-                for (PetData petData: pets)
-                    petIds.add(petData.getId());
-                customer.setPetIds(petIds);
+            for (DayOfWeek day: availableDays) {
+                DayOfWeekData dayOfWeekData = new DayOfWeekData();
+                dayOfWeekData.setDayName(day);
+                dayOfWeekData.setEmployeeId(employeeId);
+                dayOfWeekDAO.saveDay(dayOfWeekData);
             }
-            customers.add(customer);
+        } catch(Exception exception) {
+            return ;
         }
-        return customers;
     }
 
-    public Set<Long> findEmployeesForService(EmployeeRequestDTO requestDTO) {
-        Set<Long> availableEmployeeIds = new HashSet<>();
-        Set<SkillsData> skillSet = new HashSet<>();
-        Set<DayOfWeekData> dayOfWeekDataSet = new HashSet<>();
-        int skillCountPerRequest = 0;
+    /**
+     * Find Employees For Service
+     *
+     * @param skills the skills
+     * @param date   the date
+     * @return set
+     */
+    public Set<Long> findEmployeesForService(Set<EmployeeSkill> skills, LocalDate date) {
+        try {
+            Set<Long> availableEmployeeIds = new HashSet<>();
+            Set<SkillsData> skillSet = new HashSet<>();
+            Set<DayOfWeekData> dayOfWeekDataSet = new HashSet<>();
+            int skillCountPerRequest = 0;
 
-        if (requestDTO.getDate() != null)
-            dayOfWeekDataSet = dayOfWeekDAO.getEmployeesByDayName(requestDTO.getDate().getDayOfWeek());
+            if (date != null)
+                dayOfWeekDataSet = dayOfWeekDAO.getEmployeesByDayName(date.getDayOfWeek());
 
-        if (requestDTO.getSkills() != null) {
-            skillCountPerRequest = requestDTO.getSkills().size();
-            skillSet = skillDAO.getEmployeesBySkillName(requestDTO.getSkills());
-        }
+            if (skills != null) {
+                skillCountPerRequest = skills.size();
+                skillSet = skillDAO.getEmployeesBySkillName(skills);
+            }
 
-        for (DayOfWeekData dayOfWeekData: dayOfWeekDataSet) {
-            int skillCountPerEmployee = 0;
-            for (SkillsData skillsData : skillSet) {
-                if (Objects.equals(dayOfWeekData.getEmployeeId(), skillsData.getEmployeeId())) {
-                    skillCountPerEmployee++;
-                    if (skillCountPerEmployee == skillCountPerRequest)
-                        availableEmployeeIds.add(dayOfWeekData.getEmployeeId());
+            for (DayOfWeekData dayOfWeekData: dayOfWeekDataSet) {
+                int skillCountPerEmployee = 0;
+                for (SkillsData skillsData : skillSet) {
+                    if (Objects.equals(dayOfWeekData.getEmployeeId(), skillsData.getEmployeeId())) {
+                        skillCountPerEmployee++;
+                        if (skillCountPerEmployee == skillCountPerRequest)
+                            availableEmployeeIds.add(dayOfWeekData.getEmployeeId());
+                    }
                 }
             }
+            return availableEmployeeIds;
+        } catch (Exception exception) {
+            return null;
         }
-        return availableEmployeeIds;
     }
 
-    public CustomerDTO getOwnerByPet(Long petId) {
-        List<Long> petIds = new ArrayList<>();
-        CustomerDTO customer = objectMapper.convertValue(customerDAO.getCustomer(petId), CustomerDTO.class);
+    /**
+     * Gets employee by id.
+     *
+     * @param employeeId the employee id
+     * @return the employee by id
+     */
+    public EmployeeData getEmployeeById(Long employeeId) {
+        try {
+            return employeeDAO.getEmployeeById(employeeId);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
 
-        for (PetData petData : petDAO.getPetsByOwnerID(customer.getId()))
-            petIds.add(petData.getId());
-        customer.setPetIds(petIds);
-        return customer;
+    /**
+     * Gets skills by employee id.
+     *
+     * @param employeeId the employee id
+     * @return skills by employee id
+     */
+    public Set<SkillsData> getSkillsByEmployeeId(Long employeeId) {
+        try {
+            return skillDAO.getSkillsByEmployeeId(employeeId);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Add skill long.
+     *
+     * @param skillsData the skills data
+     * @return the long
+     */
+    public Long addSkill(SkillsData skillsData) {
+        try {
+            return skillDAO.saveSkill(skillsData);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets skills by id list.
+     *
+     * @param skillIds the skill ids
+     * @return the skills by id list
+     */
+    public Set<SkillsData> getSkillsByIdList(List<Long> skillIds) {
+        try {
+            return skillDAO.getSkillsByIdList(skillIds);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets days by employee id.
+     *
+     * @param employeeId the employee id
+     * @return days by employee id
+     */
+    public Set<DayOfWeekData> getDaysByEmployeeId(Long employeeId) {
+        try {
+            return dayOfWeekDAO.getDaysByEmployeeId(employeeId);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Add day long.
+     *
+     * @param dayOfWeekData the day of week data
+     * @return the long
+     */
+    public Long addDay(DayOfWeekData dayOfWeekData) {
+        try {
+            return dayOfWeekDAO.saveDay(dayOfWeekData);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets days by days id list.
+     *
+     * @param daysIds the days ids
+     * @return the days by days id list
+     */
+    public Set<DayOfWeekData> getDaysByDaysIdList(List<Long> daysIds) {
+        try {
+            return dayOfWeekDAO.getDaysByDaysId(daysIds);
+        } catch (Exception exception) {
+            return null;
+        }
     }
 }

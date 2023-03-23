@@ -18,9 +18,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * The type Day of week dao.
+ */
 @Repository
 @Transactional
 public class DayOfWeekDAOImpl implements DayOfWeekDAO {
+    /**
+     * The Jdbc template.
+     */
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
     private static final String DAY_NAME = "day_name";
@@ -29,10 +35,7 @@ public class DayOfWeekDAOImpl implements DayOfWeekDAO {
 
     private static final String INSERT_DAY =
         "INSERT INTO day_of_week (day_name, employee_id) " +
-        "VALUES " +
-        "(:" + DAY_NAME +
-        ", :" + DAY_EMPLOYEE_ID +
-        " )";
+        "VALUES (:" + DAY_NAME + ", :" + DAY_EMPLOYEE_ID + " )";
 
     private static final String SELECT_DAYS_BY_EMPLOYEE_ID =
         "SELECT day_name, employee_id FROM day_of_week " +
@@ -72,7 +75,7 @@ public class DayOfWeekDAOImpl implements DayOfWeekDAO {
         return
             new HashSet<>(jdbcTemplate.query(
                 SELECT_DAYS_BY_EMPLOYEE_ID,
-                new MapSqlParameterSource().addValue("employee_id", employeeId),
+                new MapSqlParameterSource().addValue(DAY_EMPLOYEE_ID, employeeId),
                 dayMapper
             )
         );
@@ -105,7 +108,7 @@ public class DayOfWeekDAOImpl implements DayOfWeekDAO {
         jdbcTemplate.update(
             DELETE_DAYS_BY_EMPLOYEE_ID,
             new MapSqlParameterSource()
-                .addValue("employee_id", DAY_EMPLOYEE_ID)
+                .addValue(DAY_EMPLOYEE_ID, DAY_EMPLOYEE_ID)
         );
     }
 }

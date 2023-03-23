@@ -16,10 +16,16 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * The type Pet dao.
+ */
 @Repository
 @Transactional
 public class PetDAOImpl implements PetDAO {
 
+    /**
+     * The Jdbc template.
+     */
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -65,12 +71,12 @@ public class PetDAOImpl implements PetDAO {
         jdbcTemplate.update(
             INSERT_PET,
             new MapSqlParameterSource()
-                    .addValue(PET_TYPE, String.valueOf(petData.getType()))
-                    .addValue(PET_NAME, petData.getName())
-                    .addValue(OWNER_ID, petData.getOwnerId())
-                    .addValue(PET_BIRTH_DATE, petData.getBirthDate())
-                    .addValue(PET_NOTES, petData.getNotes()),
-                key
+                .addValue(PET_TYPE, String.valueOf(petData.getType()))
+                .addValue(PET_NAME, petData.getName())
+                .addValue(OWNER_ID, petData.getOwnerId())
+                .addValue(PET_BIRTH_DATE, petData.getBirthDate())
+                .addValue(PET_NOTES, petData.getNotes()),
+            key
         );
         return Objects.requireNonNull(key.getKey()).longValue();
     }
@@ -93,7 +99,7 @@ public class PetDAOImpl implements PetDAO {
     public List<PetData> getPetsByOwnerID(Long ownerId) {
         return jdbcTemplate.query(
             SELECT_ALL_PETS_BY_OWNER_ID,
-            new MapSqlParameterSource().addValue("owner_id", ownerId),
+            new MapSqlParameterSource().addValue(OWNER_ID, ownerId),
             new BeanPropertyRowMapper<>(PetData.class)
         );
     }
