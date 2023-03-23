@@ -48,6 +48,10 @@ As you complete the objectives of this project, you will be able to verify progr
 ### Tested Conditions
 Tests will pass under the following conditions:
 
+![image](https://user-images.githubusercontent.com/19755860/227121079-12bdb147-dde9-4fca-a536-9ce704ed9a5e.png)
+
+
+
 * `testCreateCustomer` - **UserController.saveCustomer** returns a saved customer matching the request
 * `testCreateEmployee` - **UserController.saveEmployee** returns a saved employee matching the request
 * `testAddPetsToCustomer` - **PetController.getPetsByOwner** returns a saved pet with the same id and name as the one saved with **UserController.savePet** for a given owner
