@@ -9,6 +9,7 @@ import com.udacity.jdnd.course3.critter.dto.EmployeeSkill;
 import com.udacity.jdnd.course3.critter.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ import java.util.*;
  * The type User service.
  */
 @Service
+@Transactional
 public class UserService {
 
     /**
@@ -57,7 +59,7 @@ public class UserService {
     ObjectMapper objectMapper;
 
     /**
-     * Add customer customer dto.
+     * Add customer dto.
      *
      * @param customerDTO the customer dto
      * @return the customer dto
@@ -104,11 +106,14 @@ public class UserService {
      * @param petId the pet id
      * @return the owner by pet
      */
-    public CustomerData getOwnerByPet(Long petId) {
+    public CustomerData getOwnerByPet(Long petId) throws Exception {
         try {
-            return customerDAO.getCustomer(petDAO.getPetById(petId).getOwnerId());
-        } catch (Exception exception) {
+            PetData pet = petDAO.getPetById(petId);
+            if (pet != null)
+                return customerDAO.getCustomer(pet.getOwnerId());
             return null;
+        } catch (Exception exception) {
+             throw new Exception("Not a valid pet" + exception.getMessage());
         }
     }
 

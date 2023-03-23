@@ -108,7 +108,7 @@ public class DayOfWeekDAOImpl implements DayOfWeekDAO {
         jdbcTemplate.update(
             DELETE_DAYS_BY_EMPLOYEE_ID,
             new MapSqlParameterSource()
-                .addValue(DAY_EMPLOYEE_ID, DAY_EMPLOYEE_ID)
+                .addValue(DAY_EMPLOYEE_ID, employeeId)
         );
     }
 }

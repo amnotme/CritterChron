@@ -9,6 +9,7 @@ import com.udacity.jdnd.course3.critter.entity.JoinScheduleData;
 import com.udacity.jdnd.course3.critter.entity.ScheduleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Set;
  * The type Schedule service.
  */
 @Service
+@Transactional
 public class ScheduleService {
 
     /**
@@ -136,11 +138,11 @@ public class ScheduleService {
      * @param employeeId the employee id
      * @return the schedules by employee id
      */
-    public List<JoinScheduleData> getSchedulesByEmployeeId(Long employeeId) {
+    public List<JoinScheduleData> getSchedulesByEmployeeId(Long employeeId) throws Exception {
         try {
             return joinScheduleDAO.getSchedulesByEmployeeId(employeeId);
         } catch (Exception exception) {
-            return null;
+            throw new Exception(exception.getLocalizedMessage());
         }
     }
 
@@ -150,11 +152,11 @@ public class ScheduleService {
      * @param petId the pet id
      * @return the schedules by pet id
      */
-    public List<JoinScheduleData> getSchedulesByPetId(Long petId) {
+    public List<JoinScheduleData> getSchedulesByPetId(Long petId) throws Exception {
         try {
             return joinScheduleDAO.getSchedulesByPetId(petId);
         } catch (Exception exception) {
-            return null;
+            throw new Exception(exception.getLocalizedMessage());
         }
     }
 }

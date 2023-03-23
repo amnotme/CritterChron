@@ -7,6 +7,7 @@ import com.udacity.jdnd.course3.critter.dto.PetDTO;
 import com.udacity.jdnd.course3.critter.entity.PetData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * The type Pet service.
  */
 @Service
+@Transactional
 public class PetService {
 
     /**
@@ -66,11 +68,11 @@ public class PetService {
      * @param petId the pet id
      * @return the pet by id
      */
-    public PetData getPetById(Long petId) {
+    public PetData getPetById(Long petId) throws Exception {
         try {
             return petDAO.getPetById(petId);
         } catch (Exception exception) {
-            return null;
+            throw new Exception(exception.getLocalizedMessage());
         }
     }
 }

@@ -2,13 +2,14 @@ package com.udacity.jdnd.course3.critter.controller;
 
 import com.google.common.collect.Lists;
 import com.udacity.jdnd.course3.critter.dto.EmployeeSkill;
-import com.udacity.jdnd.course3.critter.dto.PetDTO;
 import com.udacity.jdnd.course3.critter.dto.ScheduleDTO;
 import com.udacity.jdnd.course3.critter.entity.JoinScheduleData;
 import com.udacity.jdnd.course3.critter.entity.PetData;
 import com.udacity.jdnd.course3.critter.entity.ScheduleData;
 import com.udacity.jdnd.course3.critter.service.PetService;
 import com.udacity.jdnd.course3.critter.service.ScheduleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/schedule")
 public class ScheduleController {
+
+
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
     /**
      * The Schedule service.
@@ -132,19 +136,24 @@ public class ScheduleController {
      */
     @GetMapping("/pet/{petId}")
     public List<ScheduleDTO> getScheduleForPet(@PathVariable long petId) {
-        List<JoinScheduleData> joinScheduleData = scheduleService.getSchedulesByPetId(petId);
+        try {
+            List<JoinScheduleData> joinScheduleData = scheduleService.getSchedulesByPetId(petId);
 
-        if (joinScheduleData == null) return null;
+            if (joinScheduleData == null) return null;
 
-        Set<Long> scheduleIds = joinScheduleData
-            .stream()
-            .filter(data -> Objects.equals(data.getPetId(), petId))
-            .map(JoinScheduleData::getScheduleId)
-            .collect(Collectors.toSet());
+            Set<Long> scheduleIds = joinScheduleData
+                    .stream()
+                    .filter(data -> Objects.equals(data.getPetId(), petId))
+                    .map(JoinScheduleData::getScheduleId)
+                    .collect(Collectors.toSet());
 
-        List<ScheduleData> schedules = scheduleService.getSchedulesByScheduleIds(Lists.newArrayList(scheduleIds));
+            List<ScheduleData> schedules = scheduleService.getSchedulesByScheduleIds(Lists.newArrayList(scheduleIds));
 
-        return this.processScheduleData(schedules);
+            return this.processScheduleData(schedules);
+        } catch (Exception exception) {
+            logger.error("There doesn't seem to be a schedule for pet " + petId);
+            return null;
+        }
     }
 
     /**
@@ -155,19 +164,24 @@ public class ScheduleController {
      */
     @GetMapping("/employee/{employeeId}")
     public List<ScheduleDTO> getScheduleForEmployee(@PathVariable long employeeId) {
-        List<JoinScheduleData> joinScheduleData = scheduleService.getSchedulesByEmployeeId(employeeId);
+        try {
+            List<JoinScheduleData> joinScheduleData = scheduleService.getSchedulesByEmployeeId(employeeId);
 
-        if (joinScheduleData == null) return null;
+            if (joinScheduleData == null) return null;
 
-        Set<Long> scheduleIds = joinScheduleData
-            .stream()
-            .filter(data -> data.getEmployeeId() == employeeId)
-            .map(JoinScheduleData::getScheduleId)
-            .collect(Collectors.toSet());
+            Set<Long> scheduleIds = joinScheduleData
+                    .stream()
+                    .filter(data -> data.getEmployeeId() == employeeId)
+                    .map(JoinScheduleData::getScheduleId)
+                    .collect(Collectors.toSet());
 
-        List<ScheduleData> schedules = scheduleService.getSchedulesByScheduleIds(Lists.newArrayList(scheduleIds));
+            List<ScheduleData> schedules = scheduleService.getSchedulesByScheduleIds(Lists.newArrayList(scheduleIds));
 
-        return this.processScheduleData(schedules);
+            return this.processScheduleData(schedules);
+        } catch (Exception exception) {
+            logger.error("There doesn't seem to be a schedule for employee " + employeeId);
+            return null;
+        }
     }
 
     /**
@@ -178,29 +192,35 @@ public class ScheduleController {
      */
     @GetMapping("/customer/{customerId}")
     public List<ScheduleDTO> getScheduleForCustomer(@PathVariable long customerId) {
-        List<Long> petIds = petService
-            .getPetsByOwner(customerId)
-            .stream()
-            .map(PetData::getId)
-            .collect(Collectors.toList());
+        try {
 
-        Set<ScheduleDTO> scheduleDTOSet = new HashSet<>();
-        for (Long petId: petIds) {
-            List<JoinScheduleData> joinScheduleData = scheduleService.getSchedulesByPetId(petId);
+            List<Long> petIds = petService
+                    .getPetsByOwner(customerId)
+                    .stream()
+                    .map(PetData::getId)
+                    .collect(Collectors.toList());
 
-            if (joinScheduleData == null) return null;
+            Set<ScheduleDTO> scheduleDTOSet = new HashSet<>();
+            for (Long petId: petIds) {
+                List<JoinScheduleData> joinScheduleData = scheduleService.getSchedulesByPetId(petId);
 
-            Set<Long> scheduleIds = joinScheduleData
-                .stream()
-                .filter(data -> Objects.equals(data.getPetId(), petId))
-                .map(JoinScheduleData::getScheduleId)
-                .collect(Collectors.toSet());
+                if (joinScheduleData == null) return null;
 
-            List<ScheduleData> schedules = scheduleService.getSchedulesByScheduleIds(Lists.newArrayList(scheduleIds));
+                Set<Long> scheduleIds = joinScheduleData
+                        .stream()
+                        .filter(data -> Objects.equals(data.getPetId(), petId))
+                        .map(JoinScheduleData::getScheduleId)
+                        .collect(Collectors.toSet());
 
-            scheduleDTOSet.addAll(this.processScheduleData(schedules));
+                List<ScheduleData> schedules = scheduleService.getSchedulesByScheduleIds(Lists.newArrayList(scheduleIds));
+
+                scheduleDTOSet.addAll(this.processScheduleData(schedules));
+            }
+            return Lists.newArrayList(scheduleDTOSet);
+        } catch (Exception exception) {
+            logger.error("There doesn't seem to be a schedule for customer: " + customerId);
+            return null;
         }
-        return Lists.newArrayList(scheduleDTOSet);
     }
 
     /**

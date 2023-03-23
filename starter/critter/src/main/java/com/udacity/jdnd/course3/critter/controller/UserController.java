@@ -8,6 +8,8 @@ import com.udacity.jdnd.course3.critter.dto.EmployeeSkill;
 import com.udacity.jdnd.course3.critter.entity.*;
 import com.udacity.jdnd.course3.critter.service.PetService;
 import com.udacity.jdnd.course3.critter.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     /**
      * The User service.
@@ -86,15 +90,21 @@ public class UserController {
      */
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
+        try {
+            CustomerData customerData = userService.getOwnerByPet(petId);
+            if (customerData == null) return null;
+            CustomerDTO customer = objectMapper.convertValue(customerData, CustomerDTO.class);
+            List<PetData> pets = petService.getPetsByOwner(customer.getId());
+            customer
+                .setPetIds(pets.stream()
+                .map(PetData::getId)
+                .collect(Collectors.toList()));
 
-        CustomerDTO customer = objectMapper.convertValue(userService.getOwnerByPet(petId), CustomerDTO.class);
-        List<PetData> pets = petService.getPetsByOwner(customer.getId());
-        customer
-            .setPetIds(pets.stream()
-            .map(PetData::getId)
-            .collect(Collectors.toList()));
-
-        return customer;
+            return customer;
+        } catch (Exception exception) {
+            logger.error("There doesn't seem to be customer tied to pet " + petId);
+            return null;
+        }
     }
 
     /**
@@ -198,10 +208,18 @@ public class UserController {
         LocalDate date = employeeRequestDTO.getDate();
 
         Set<Long> employeeIds = userService.findEmployeesForService(skills, date);
-        return employeeIds
+        List<EmployeeDTO> employeeDTOS = employeeIds
             .stream()
             .map(id -> objectMapper.convertValue(userService.getEmployeeById(id), EmployeeDTO.class))
             .collect(Collectors.toList());
+
+        for (EmployeeDTO employeeDTO: employeeDTOS) {
+            Set<SkillsData> skillsDataSet = userService.getSkillsByEmployeeId(employeeDTO.getId());
+            Set<DayOfWeekData> dayOfWeekDataSet = userService.getDaysByEmployeeId(employeeDTO.getId());
+            employeeDTO.setSkills(skillsDataSet.stream().map(SkillsData::getSkillName).collect(Collectors.toSet()));
+            employeeDTO.setDaysAvailable(dayOfWeekDataSet.stream().map(DayOfWeekData::getDayName).collect(Collectors.toSet()));
+        }
+        return employeeDTOS;
     }
 
 }
